@@ -1,6 +1,28 @@
-use std::fs;
+use std::{
+    fs::{self, File},
+    io::{BufWriter, Write},
+};
 
 use crate::layout::ProjectLayout;
+
+fn create_example(path: &String) -> Result<(), std::io::Error> {
+    //For now only C
+    let full_path = format!("{}/{}", path, "main.c");
+    let file = File::create(full_path)?;
+    let mut writer = BufWriter::new(file);
+    let content = r#"
+#include <stdio.h>
+    
+int main(){
+    printf("Hello World!\n");
+    return 0;
+}
+    "#;
+
+    writer.write_all(content.as_bytes())?;
+    writer.flush()?;
+    Ok(())
+}
 
 fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
     let root = layout.get_root_dir();
@@ -13,11 +35,12 @@ fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
     let include_dir = format!("{}/{}", root, layout.get_include_dir());
     let build_dir = format!("{}/{}", root, layout.get_build_dir());
 
-    fs::create_dir_all(src_dir)?;
+    fs::create_dir_all(&src_dir)?;
     fs::create_dir_all(include_dir)?;
     fs::create_dir_all(build_dir)?;
 
     //Should create the example main.c or c++ file
+    create_example(&src_dir)?;
 
     Ok(())
 }
