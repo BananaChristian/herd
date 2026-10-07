@@ -3,6 +3,7 @@ use std::env;
 use crate::scaffold::scaffold;
 use colored::*;
 mod layout;
+mod config;
 mod scaffold;
 
 fn print_help() {

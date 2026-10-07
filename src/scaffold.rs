@@ -3,7 +3,16 @@ use std::{
     io::{BufWriter, Write},
 };
 
-use crate::layout::ProjectLayout;
+use crate::{config::Config, layout::ProjectLayout};
+
+fn create_build_toml(project_name: &String) -> Result<(), std::io::Error> {
+    let config = Config::new(project_name.clone());
+    let toml_string = toml::to_string_pretty(&config).expect("Failed to serialize to TOML");
+    let path = format!("{}/{}", project_name, "build.toml");
+    fs::write(path, toml_string)?;
+
+    Ok(())
+}
 
 fn create_example(path: &String) -> Result<(), std::io::Error> {
     //For now only C
@@ -28,7 +37,9 @@ fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
     let root = layout.get_root_dir();
     //Create the project root
     fs::create_dir(&root)?;
-    //Should create build.toml here
+
+    //Create build.toml
+    create_build_toml(&root)?;
 
     //Create the sub dirs
     let src_dir = format!("{}/{}", root, layout.get_src_dir());
@@ -39,7 +50,7 @@ fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
     fs::create_dir_all(include_dir)?;
     fs::create_dir_all(build_dir)?;
 
-    //Should create the example main.c or c++ file
+    //Create the main.c stub
     create_example(&src_dir)?;
 
     Ok(())
