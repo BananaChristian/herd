@@ -5,7 +5,7 @@ use std::{
 
 use crate::{config::Config, layout::ProjectLayout};
 
-fn create_build_toml(project_name: &String) -> Result<(), std::io::Error> {
+fn create_config(project_name: &String) -> Result<(), std::io::Error> {
     let config = Config::new(project_name.clone());
     let toml_string = toml::to_string_pretty(&config).expect("Failed to serialize to TOML");
     let path = format!("{}/{}", project_name, "build.toml");
@@ -33,13 +33,15 @@ int main(){
     Ok(())
 }
 
-fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
+pub fn init_project(project_name: String) -> Result<(), std::io::Error> {
+    let layout = ProjectLayout::new(&project_name);
+
     let root = layout.get_root_dir();
     //Create the project root
     fs::create_dir(&root)?;
 
     //Create build.toml
-    create_build_toml(&root)?;
+    create_config(&root)?;
 
     //Create the sub dirs
     let src_dir = format!("{}/{}", root, layout.get_src_dir());
@@ -54,14 +56,4 @@ fn create_project(layout: &ProjectLayout) -> Result<(), std::io::Error> {
     create_example(&src_dir)?;
 
     Ok(())
-}
-
-pub fn scaffold(project_name: String) -> Result<(), std::io::Error> {
-    let layout = ProjectLayout::new(
-        project_name,
-        "src".to_string(),
-        "include".to_string(),
-        "build".to_string(),
-    );
-    create_project(&layout)
 }

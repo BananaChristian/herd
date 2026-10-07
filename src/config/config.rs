@@ -1,10 +1,10 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::config::project::Project;
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Config {
-    project: Project,
+    pub project: Project,
 }
 
 impl Config {

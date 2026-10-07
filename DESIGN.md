@@ -16,3 +16,10 @@ Support for C++ is deffered till the toml parsing and build pipelines are stable
 This dicatates the basic standard config that is created when the init command created the build.toml file
 For v0.1 only the project key and the name are enough
 
+# The workspace manager
+This is like a representation of the workspace we are dealing with, it is owned by the build ochestrator which I will define later
+For v0.1 it keeps an array of all the source files, the layout and the config 
+Reason being it needs to have the overall info in order to properly ochestrate the build
+I had stupidly tried creating it whenever init runs but yeah thats was dumb no need for it, anyways the resolution
+is that it will get built whenever the build command runs since that is when we want to build after that it can die 
+It however needs to load the build.toml from disk since it needs to know the name of the project 

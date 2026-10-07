@@ -1,24 +1,33 @@
 use std::env;
 
-use crate::scaffold::scaffold;
 use colored::*;
-mod layout;
+
+use crate::{
+    builder::{Builder, Workspace},
+    driver::load_config,
+    scaffold::init_project,
+};
+
+mod builder;
 mod config;
+mod driver;
+mod layout;
 mod scaffold;
 
 fn print_help() {
     println!("Herd build system");
     println!("Usage: herd [options]");
     println!("Options: \n");
-    println!(" -h, --help                Display this help message");
-    println!(" init <project_name>        Creates a new project with a specified name");
+    println!(" -h, --help               Display this help message");
+    println!(" init <project_name>      Creates a new project with a specified name");
+    println!(" build                    Build the project and produce the final product")
 }
 
 fn main() -> Result<(), std::io::Error> {
     let args: Vec<_> = env::args().collect();
     match args.get(1).map(|s| s.as_str()) {
         Some("init") => match args.get(2) {
-            Some(name) => match scaffold(name.to_string()) {
+            Some(name) => match init_project(name.to_string()) {
                 Ok(_) => cli_message(format!("Created project {}", name)),
                 Err(err) => cli_error(format!("Failed to create project {} due to {}", name, err)),
             },
@@ -27,7 +36,15 @@ fn main() -> Result<(), std::io::Error> {
                 cli_error(format!("Error: herd init requires a project name"))
             }
         },
-        Some("--help") | Some("-h")=> print_help(),
+        Some("build") => match load_config() {
+            Ok(config) => {
+                let workspace = Workspace::new(&config);
+                let builder = Builder::new(workspace);
+                builder.build();
+            }
+            Err(err) => cli_error(format!("Failed to get build.toml due to {}", err)),
+        },
+        Some("--help") | Some("-h") => print_help(),
         None => {
             print_help();
             cli_error(format!("No command was provided"));

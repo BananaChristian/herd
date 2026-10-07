@@ -1,4 +1,5 @@
 ///This dictates the project layout
+#[derive(Clone, Debug)]
 pub struct ProjectLayout {
     ///The root of the project
     root: String,
@@ -11,12 +12,12 @@ pub struct ProjectLayout {
 }
 
 impl ProjectLayout {
-    pub fn new(root: String, src: String, include: String, build: String) -> Self {
+    pub fn new(root: &String) -> Self {
         ProjectLayout {
-            root,
-            src,
-            include,
-            build,
+            root: root.clone(),
+            src: format!("{}/src", root),
+            include: format!("{}/include", root),
+            build: format!("{}/build", root),
         }
     }
 
